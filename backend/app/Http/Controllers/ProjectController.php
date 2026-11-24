@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
@@ -109,8 +110,12 @@ class ProjectController extends Controller
 
         $project->members()->detach($userId);
 
-        // Their tasks in this project become unassigned, so no one keeps work from a former member
-        $project->tasks()->where('assigned_to', $userId)->update(['assigned_to' => null]);
+        // Remove the former member from their tasks in this project only
+        $taskIds = $project->tasks()->pluck('id');
+        DB::table('task_user')
+            ->whereIn('task_id', $taskIds)
+            ->where('user_id', $userId)
+            ->delete();
 
         return response()->json($project->load('members:id,name,email,role'));
     }

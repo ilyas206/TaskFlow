@@ -24,6 +24,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             // Hashes the password automatically when it is saved
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 

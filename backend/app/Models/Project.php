@@ -40,6 +40,24 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
+    // The columns of the board, always in display order
+    public function boardColumns(): HasMany
+    {
+        return $this->hasMany(BoardColumn::class)->orderBy('position');
+    }
+
+    // Every new project starts with the three default columns
+    protected static function booted(): void
+    {
+        static::created(function (Project $project) {
+            $project->boardColumns()->createMany([
+                ['name' => 'À faire', 'position' => 1, 'is_done' => false],
+                ['name' => 'En cours', 'position' => 2, 'is_done' => false],
+                ['name' => 'Terminé', 'position' => 3, 'is_done' => true],
+            ]);
+        });
+    }
+
     public function isOwnedBy(User $user): bool
     {
         return $user->id === $this->manager_id;
