@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\User;
+use App\Notifications\TaskAssigned;
+use App\Notifications\TaskDueChanged;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -67,6 +70,9 @@ class TaskController extends Controller
             $task->assignees()->sync($assigneeIds);
         });
 
+        // Every assignee of a new task is notified
+        $this->notifyAssignees($task, $request->user(), $assigneeIds);
+
         return response()->json($this->withRelations($task), 201);
     }
 
@@ -94,6 +100,11 @@ class TaskController extends Controller
             : null;
         unset($data['assignee_ids']);
 
+        // Remember who was already assigned, so only the newly added people are notified
+        $previousIds = $task->assignees()->pluck('users.id')->all();
+
+        $previousDueDate = $task->due_date?->toDateString();
+
         $task->fill($data);
         $this->ensureValidDates($task);
 
@@ -103,6 +114,14 @@ class TaskController extends Controller
                 $task->assignees()->sync($assigneeIds);
             }
         });
+
+        if ($assigneeIds !== null) {
+            $this->notifyAssignees($task, $request->user(), array_diff($assigneeIds, $previousIds));
+        }
+
+        if ($previousDueDate !== $task->due_date?->toDateString()) {
+            $this->notifyDueDateChanged($task, $request->user());
+        }
 
         return response()->json($this->withRelations($task));
     }
@@ -174,5 +193,30 @@ class TaskController extends Controller
         if ($task->start_date && $task->due_date && $task->due_date->lt($task->start_date)) {
             abort(422, 'The due date cannot be before the start date.');
         }
+    }
+
+    // Notifies the given users, except the manager who made the change
+    private function notifyAssignees(Task $task, User $actor, array $userIds): void
+    {
+        if (empty($userIds)) {
+            return;
+        }
+
+        $task->loadMissing('project:id,name');
+
+        User::whereIn('id', $userIds)
+            ->where('id', '!=', $actor->id)
+            ->get()
+            ->each(fn (User $user) => $user->notify(new TaskAssigned($task)));
+    }
+
+    // Notifies every current assignee except the manager who changed the date
+    private function notifyDueDateChanged(Task $task, User $actor): void
+    {
+        $task->load(['project:id,name', 'assignees:id,name,email']);
+
+        $task->assignees
+            ->reject(fn (User $user) => $user->id === $actor->id)
+            ->each(fn (User $user) => $user->notify(new TaskDueChanged($task)));
     }
 }

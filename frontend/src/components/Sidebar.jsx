@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { FolderKanban, LayoutDashboard, ListChecks, LogOut, Users } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import logo from "../assets/logo.png"
+import UserBadge from './UserBadge'
 
 const navItems = [
   { to: '/', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
@@ -25,7 +26,7 @@ export default function Sidebar() {
   return (
     <aside className="flex w-64 shrink-0 flex-col justify-between rounded-3xl bg-card p-5 shadow-sm">
       <div>
-        <img src={logo} alt="Logo" className="pb-5 mx-auto w-9/10"/>
+        <img src={logo} alt="Logo" className="pb-5 mx-auto w-8/10"/>
 
         <nav className="flex flex-col gap-1">
           {visibleItems.map(({ to, label, icon: Icon, end }) => (
@@ -48,8 +49,11 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      <div className="border-t border-surface pt-4">
-        <p className="truncate px-3 pb-3 text-sm text-muted">{user?.name}</p>
+      <div>
+        <div className="flex items-center gap-3 border-y border-surface px-1 py-2 mb-2">
+          <UserBadge user={user}/>
+          <p className="truncate text-sm font-semibold text-ink">{user?.name}</p>
+        </div>
         <button
           onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted transition hover:bg-red-100 hover:text-red-600"

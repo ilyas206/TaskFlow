@@ -8,6 +8,7 @@ import UsersImg from '../assets/users_not_loaded.png'
 import { getErrorMessage } from '../lib/errors'
 import { roleLabels } from '../lib/labels'
 import Loader from '../components/Loader'
+import UserBadge from '../components/UserBadge'
 
 // The backend returns 409 when a user still manages projects. Show a clear French message for it.
 function getUserErrorMessage(error) {
@@ -179,24 +180,7 @@ export default function UsersPage() {
               return (
                 <li key={user.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
                   <div className="flex items-center gap-5">
-                    <span
-                      title={user.is_admin ? 'Administrateur' : roleLabels[user.role]}
-                      className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${
-                        user.is_admin
-                          ? 'bg-amber-100 text-amber-700'
-                          : user.role === 'manager'
-                            ? 'bg-brand-50 text-brand-600'
-                            : 'bg-gray-100 text-ink'
-                      }`}
-                    >
-                      {user.is_admin ? (
-                        <UserShield size={18} aria-hidden="true" />
-                      ) : user.role === 'manager' ? (
-                        <UserStar size={18} aria-hidden="true" />
-                      ) : (
-                        <User size={18} aria-hidden="true" />
-                      )}
-                    </span>
+                    <UserBadge user={user}/>
                     <div className="min-w-0">
                         <p className="truncate font-medium text-ink">
                         {user.name}

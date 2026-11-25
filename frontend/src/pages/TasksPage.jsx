@@ -65,8 +65,9 @@ function MyTasks() {
                 key={task.id}
                 className="flex flex-col gap-3 rounded-2xl border border-surface p-4 md:flex-row md:items-center md:justify-between"
               >
-                <div className="min-w-0">
+                <div className="min-w-0 max-w-2xl">
                   <p className="truncate font-medium text-ink">{task.title}</p>
+                  <p className="font-light text-xs text-muted py-1 max-w-lg">{task.description ? task.description : 'Aucune description.'}</p>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     {task.project?.name && (
                       <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface px-2.5 py-1 text-xs font-medium text-muted">
@@ -75,7 +76,7 @@ function MyTasks() {
                       </span>
                     )}
                     {task.board_column?.name && (
-                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700">
+                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-brand-50 text-brand-700 px-2.5 py-1 text-xs font-medium">
                         <CircleDot size={13} aria-hidden="true" />
                         {task.board_column.name}
                       </span>
@@ -92,7 +93,7 @@ function MyTasks() {
                       <span className="font-semibold">{formatDate(task.due_date)}</span>
                       {task.is_overdue && (
                         <>
-                          <Dot/>
+                          <Dot size={13}/>
                           <span className="font-semibold">
                             En retard
                           </span>

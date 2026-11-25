@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BoardColumnController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
@@ -27,6 +28,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/dashboard/employee', [DashboardController::class, 'employee']);
     Route::get('/dashboard/projects/{project}', [DashboardController::class, 'project']);
+
+    // Notifications: each user sees only their own
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
 
     // Manager-only routes
     Route::middleware('manager')->group(function () {
