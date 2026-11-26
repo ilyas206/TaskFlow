@@ -13,7 +13,7 @@ export default function DashboardPage() {
   const { user, isManager } = useAuth()
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6">
+    <div className="flex min-h-[calc(100vh-3rem)] flex-1 flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold text-ink">Bonjour, {user?.name}</h1>
         <p className="mt-2 text-muted">

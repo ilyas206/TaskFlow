@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { CalendarDays, CircleDot, Dot, LayoutGrid, Plus } from 'lucide-react'
+import { Dot, LayoutGrid, Play, Plus, Square, SquareKanban } from 'lucide-react'
 import { taskKeys, tasksApi } from '../api/tasks'
 import { formatDate } from '../lib/format'
 import { columnKeys, columnsApi } from '../api/columns'
@@ -9,6 +9,8 @@ import { useAuth } from '../context/AuthContext'
 import { useTaskMutations } from '../hooks/useTaskMutations'
 import { getErrorMessage } from '../lib/errors'
 import TaskForm from './TaskForm'
+import Loader from './Loader'
+import tasksImg from '../assets/tasks_not_loaded.png'
 
 // Task cards shown on the project detail page. "Ouvrir le tableau" opens the board.
 export default function ProjectTaskList({ project }) {
@@ -75,18 +77,21 @@ export default function ProjectTaskList({ project }) {
         </div>
       )}
 
-      {isPending && <p className="mt-6 text-muted">Chargement...</p>}
+      {isPending && <div className="flex h-72 items-center justify-center">
+        <Loader />
+      </div>}
 
       {isError && (
-        <div className="mt-6">
-          <p className="text-muted">Impossible de charger les tâches.</p>
-          <button
-            onClick={() => refetch()}
-            className="mt-3 rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600"
-          >
-            Réessayer
-          </button>
-        </div>
+        <div className="flex flex-col items-center justify-center rounded-3xl bg-card p-10 shadow-sm">
+        <img src={tasksImg} className="w-72 mb-5" />
+        <p className="text-muted">Impossible de charger les tâches.</p>
+        <button
+          onClick={() => refetch()}
+          className="mt-4 rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600"
+        >
+          Réessayer
+        </button>
+      </div>
       )}
 
       {tasks?.length === 0 && <p className="mt-6 text-muted">Aucune tâche pour le moment.</p>}
@@ -98,80 +103,46 @@ export default function ProjectTaskList({ project }) {
               key={task.id}
               className="flex min-w-0 flex-col gap-3 rounded-2xl border border-surface p-4 md:flex-row md:items-center md:justify-between"
             >
-              <div className="min-w-0 max-w-2xl">
+              <div className="w-full min-w-0">
                 <p className="truncate font-medium text-ink">{task.title}</p>
                 <p className="max-w-lg py-1 text-xs font-light text-muted">
                   {task.description ? task.description : 'Aucune description.'}
                 </p>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
+                <div className="mt-4 flex w-full flex-col items-stretch gap-2">
                   {task.board_column?.name && (
-                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700">
-                      <CircleDot size={13} aria-hidden="true" />
-                      {task.board_column.name}
+                    <span className="inline-flex justify-center items-center gap-1.5 w-full rounded-lg bg-brand-50 px-2.5 py-1 text-xs text-brand-700">
+                      <SquareKanban size={13} aria-hidden="true" />
+                      <span className="font-semibold">{task.board_column.name}</span>
                     </span>
                   )}
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs ${
-                      task.is_overdue ? 'bg-red-50 text-red-700' : 'bg-brand-50 text-brand-700'
+                    className='inline-flex justify-center items-center w-full gap-1.5 rounded-lg px-2.5 py-1 text-xs bg-brand-500 text-brand-50'
+                  >
+                    <Play size={13} aria-hidden="true" />
+                    <span>Début</span>
+                    <span className="font-semibold">{formatDate(task.start_date)}</span>
+                  </span>
+                  <div
+                    className={`flex justify-center items-center w-full gap-1.5 rounded-lg px-2.5 py-1 text-xs ${
+                      task.is_overdue ? 'bg-red-700 text-red-50' : 'bg-brand-700 text-brand-50'
                     }`}
                   >
-                    <CalendarDays size={13} aria-hidden="true" />
-                    <span>Échéance</span>
-                    <span className="font-semibold">{formatDate(task.due_date)}</span>
-                    {task.is_overdue && (
-                      <>
-                        <Dot size={13} aria-hidden="true" />
-                        <span className="font-semibold">En retard</span>
-                      </>
-                    )}
-                  </span>
+                      <Square size={13} aria-hidden="true" />
+                      <span>Échéance</span>
+                      <span className="font-semibold">{formatDate(task.due_date)}</span>
+                      {task.is_overdue && (
+                        <>
+                          <Dot size={13} aria-hidden="true" />
+                          <span className="font-semibold">En retard</span>
+                        </>
+                      )}
+                  </div>
                 </div>
               </div>
             </li>
           ))}
         </ul>
       )}
-
-      {/* {tasks?.length > 0 && (
-        <ul className="mt-6 flex flex-col gap-3">
-          {tasks.map((task) => (
-            <li
-              key={task.id}
-              className="flex flex-col gap-3 rounded-2xl border border-surface p-4 md:flex-row md:items-center md:justify-between"
-            >
-              <div className="min-w-0 max-w-2xl">
-                <p className="truncate font-medium text-ink">{task.title}</p>
-                <p className="max-w-lg py-1 text-xs font-light text-muted">
-                  {task.description ? task.description : 'Aucune description.'}
-                </p>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  {task.board_column?.name && (
-                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700">
-                      <CircleDot size={13} aria-hidden="true" />
-                      {task.board_column.name}
-                    </span>
-                  )}
-                  <span
-                    className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs ${
-                      task.is_overdue ? 'bg-red-50 text-red-700' : 'bg-brand-50 text-brand-700'
-                    }`}
-                  >
-                    <CalendarDays size={13} aria-hidden="true" />
-                    <span>Échéance</span>
-                    <span className="font-semibold">{formatDate(task.due_date)}</span>
-                    {task.is_overdue && (
-                      <>
-                        <Dot size={13} aria-hidden="true" />
-                        <span className="font-semibold">En retard</span>
-                      </>
-                    )}
-                  </span>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )} */}
     </section>
   )
 }

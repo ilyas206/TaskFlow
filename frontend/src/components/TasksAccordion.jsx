@@ -32,7 +32,7 @@ export default function TasksAccordion() {
 
       {open && (
         <div className="flex flex-col gap-1 pl-3">
-          {isPending && <p className="px-2 py-1.5 text-xs text-muted">Chargement...</p>}
+          {isPending && <p className="px-2 py-1.5 text-xs text-brand-500">Un instant, s'il vous plaît....</p>}
           {isError && <p className="px-2 py-1.5 text-xs text-red-600">Impossible de charger.</p>}
           {projects?.length === 0 && <p className="px-2 py-1.5 text-xs text-muted">Aucun projet.</p>}
 

@@ -50,8 +50,13 @@ class NotificationController extends Controller
     // Each task notifies a user once, so reloading the list does not create duplicates.
     private function createDueSoonNotifications(User $user): void
     {
-        $tasks = Task::with('project:id,name')
-            ->whereHas('assignees', fn ($q) => $q->whereKey($user->id))
+        $tasks = Task::with(['project:id,name,manager_id', 'assignees:id,name'])
+            ->where(function ($query) use ($user) {
+                // Tasks where the user is an assignee...
+                $query->whereHas('assignees', fn ($q) => $q->whereKey($user->id))
+                    // ...or tasks in a project the user manages
+                    ->orWhereHas('project', fn ($q) => $q->where('manager_id', $user->id));
+            })
             ->whereHas('boardColumn', fn ($c) => $c->where('is_done', false))
             ->whereNotNull('due_date')
             ->whereDate('due_date', '<=', now()->addDays(2)->toDateString())

@@ -18,9 +18,17 @@ class TaskDueSoon extends Notification
     {
         $overdue = $this->task->due_date->lt(today());
 
+        // The manager gets the assignees' names, so he knows whom to follow up with
+        $isManager = $notifiable->id === $this->task->project->manager_id;
+        $assignees = $this->task->assignees->pluck('name')->implode(', ');
+
         $message = $overdue
             ? "« {$this->task->title} » est en retard."
             : "« {$this->task->title} » arrive à échéance le {$this->task->due_date->format('d/m/Y')}.";
+
+        if ($isManager && $assignees !== '') {
+            $message .= " Assignée à : {$assignees}.";
+        }
 
         return [
             'kind' => 'due_soon',

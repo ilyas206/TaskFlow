@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Pencil, Trash2, User, UserMinus } from 'lucide-react'
+import { ArrowLeft, Pencil, Play, Square, Trash2, User, UserMinus } from 'lucide-react'
 import { dashboardApi, dashboardKeys } from '../api/dashboard'
 import { invalidateProjectData, projectKeys, projectsApi } from '../api/projects'
 import { userKeys, usersApi } from '../api/users'
@@ -115,12 +115,16 @@ export default function ProjectDetailPage() {
           <StatusBadge status={project.status} />
           <h1 className="text-3xl font-bold text-ink mt-2">{project.name}</h1>
           <div className='mt-3 flex items-center text-center gap-1'>
-            <span className="w-1/2 bg-brand-500 text-brand-50 font-semibold p-2 rounded-md">
-              Début : {formatDate(project.start_date)}
+            <span className="flex items-center justify-center gap-2 w-1/2 bg-brand-500 text-brand-50 font-semibold p-2 rounded-md">
+              <Play size={17} aria-hidden="true" />
+              Début 
+              <span>{formatDate(project.start_date)}</span>
             </span>
             
-            <span className="w-1/2 bg-brand-700 text-brand-50 font-semibold p-2 rounded-md">
-              Fin : {formatDate(project.end_date)}
+            <span className="flex items-center justify-center gap-2 w-1/2 bg-brand-700 text-brand-50 font-semibold p-2 rounded-md">
+              <Square size={17} aria-hidden="true"/>
+              Fin
+              <span>{formatDate(project.end_date)}</span>
             </span>  
           </div>
           {

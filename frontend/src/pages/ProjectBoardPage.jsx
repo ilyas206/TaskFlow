@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft } from 'lucide-react'
 import { projectKeys, projectsApi } from '../api/projects'
 import ProjectBoard from '../components/ProjectBoard'
+import Loader from '../components/Loader'
+import projectImg from '../assets/projects_not_available.png'
 
 // The board for one project, opened from the sidebar's Tâches accordion
 export default function ProjectBoardPage() {
@@ -15,12 +17,15 @@ export default function ProjectBoardPage() {
   })
 
   if (isPending) {
-    return <p className="text-muted">Chargement...</p>
+    return <div className="flex min-h-[calc(100vh-3rem)] items-center justify-center">
+      <Loader />
+    </div>
   }
 
   if (isError) {
     return (
-      <div className="rounded-3xl bg-card p-10 shadow-sm">
+      <div className="flex flex-col items-center justify-center rounded-3xl bg-card p-10 shadow-sm">
+        <img src={projectImg} className="w-72 mb-5" />
         <p className="text-muted">Projet introuvable ou accès refusé.</p>
         <button
           onClick={() => refetch()}
