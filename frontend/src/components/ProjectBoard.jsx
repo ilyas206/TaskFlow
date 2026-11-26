@@ -17,7 +17,7 @@ const SELECT = 'rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none
 
 // The task section of a project page: filters, the task form, and the Kanban board.
 // editor is null (closed), 'new' (create form), or the task being edited.
-export default function ProjectTasks({ project }) {
+export default function ProjectBoard({ project }) {
   const { user, isManager } = useAuth()
   const [editor, setEditor] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -196,7 +196,7 @@ export default function ProjectTasks({ project }) {
             columns={columns}
             members={project.members}
             onSubmit={handleSubmit}
-            onCancel={() => setEditor(null)}
+            onCancel={() => {setEditor(null); taskMutations.create.reset()}}
             isSubmitting={isSaving}
             error={saveError ? getErrorMessage(saveError) : ''}
           />

@@ -3,11 +3,12 @@ import { FolderKanban, LayoutDashboard, ListChecks, LogOut, Users } from 'lucide
 import { useAuth } from '../context/AuthContext'
 import logo from "../assets/logo.png"
 import UserBadge from './UserBadge'
+import TasksAccordion from './TasksAccordion'
 
 const navItems = [
   { to: '/', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/projets', label: 'Projets', icon: FolderKanban },
-  { to: '/taches', label: 'Tâches', icon: ListChecks },
+  { to: '/taches', label: 'Tâches', icon: ListChecks, accordion: true },
   { to: '/utilisateurs', label: 'Utilisateurs', icon: Users, managerOnly: true },
 ]
 
@@ -29,7 +30,9 @@ export default function Sidebar() {
         <img src={logo} alt="Logo" className="pb-5 mx-auto w-8/10"/>
 
         <nav className="flex flex-col gap-1">
-          {visibleItems.map(({ to, label, icon: Icon, end }) => (
+          {visibleItems.map(({ to, label, icon: Icon, end, accordion }) => accordion ? (
+            <TasksAccordion key={to} />
+          ) : (
             <NavLink
               key={to}
               to={to}

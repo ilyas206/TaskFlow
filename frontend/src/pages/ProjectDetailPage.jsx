@@ -9,7 +9,7 @@ import ProgressBar from '../components/ProgressBar'
 import ProjectForm from '../components/ProjectForm'
 import StatusBadge from '../components/StatusBadge'
 import TaskBreakdown from '../components/TaskBreakdown'
-import ProjectTasks from '../components/ProjectTasks'
+import ProjectTaskList from '../components/ProjectTaskList'
 import { useAuth } from '../context/AuthContext'
 import { getErrorMessage } from '../lib/errors'
 import { formatDate } from '../lib/format'
@@ -110,12 +110,10 @@ export default function ProjectDetailPage() {
         Retour aux projets
       </Link>
 
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className={!isManager && 'w-full'}>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-ink">{project.name}</h1>
-            <StatusBadge status={project.status} />
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className={isManager ? 'w-2/3' : 'w-full'}>
+          <StatusBadge status={project.status} />
+          <h1 className="text-3xl font-bold text-ink mt-2">{project.name}</h1>
           <div className='mt-3 flex items-center text-center gap-1'>
             <span className="w-1/2 bg-brand-500 text-brand-50 font-semibold p-2 rounded-md">
               Début : {formatDate(project.start_date)}
@@ -222,7 +220,6 @@ export default function ProjectDetailPage() {
                   {isManager && (
                     <button
                       onClick={() => removeMemberMutation.mutate(member.id)}
-                      // title="Retirer du projet"
                       className="flex items-center gap-2 rounded-lg p-2 text-sm text-muted hover:bg-red-50 hover:text-red-600"
                     >
                       <UserMinus size={16} />
@@ -267,7 +264,7 @@ export default function ProjectDetailPage() {
         </section>
       </div>
 
-      <ProjectTasks project={project} />
+      <ProjectTaskList project={project} />
     </div>
   )
 }

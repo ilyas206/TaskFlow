@@ -1,11 +1,11 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import AppLayout from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import ProjectsPage from './pages/ProjectsPage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
-import TasksPage from './pages/TasksPage'
+import ProjectBoardPage from './pages/ProjectBoardPage'
 import UsersPage from './pages/UsersPage'
 
 export default function App() {
@@ -19,7 +19,8 @@ export default function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/projets" element={<ProjectsPage />} />
           <Route path="/projets/:id" element={<ProjectDetailPage />} />
-          <Route path="/taches" element={<TasksPage />} />
+          <Route path="/taches" element={<Navigate to="/projets" replace />} />
+          <Route path="/taches/:projectId" element={<ProjectBoardPage />} />
 
           {/* Managers only: the backend also rejects employees on every user route */}
           <Route element={<ProtectedRoute role="manager" />}>
