@@ -23,7 +23,7 @@ class TaskDueSoon extends Notification
         $assignees = $this->task->assignees->pluck('name')->implode(', ');
 
         $message = $overdue
-            ? "« {$this->task->title} » est en retard."
+            ? "« {$this->task->title} » est en retard (échéance : {$this->task->due_date->format('d/m/Y')})."
             : "« {$this->task->title} » arrive à échéance le {$this->task->due_date->format('d/m/Y')}.";
 
         if ($isManager && $assignees !== '') {

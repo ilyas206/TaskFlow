@@ -39,7 +39,7 @@ export default function NotificationBell() {
       markRead.mutate(item.id)
     }
     setOpen(false)
-    navigate(`/projets/${item.project_id}`)
+    navigate(`/taches/${item.project_id}`)
   }
 
   const unread = data?.unread_count ?? 0

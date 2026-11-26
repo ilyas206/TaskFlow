@@ -46,15 +46,14 @@ class NotificationController extends Controller
         return response()->json(['message' => 'All marked as read.']);
     }
 
-    // Tasks due within 48 hours (or already late) that are not done.
-    // Each task notifies a user once, so reloading the list does not create duplicates.
+    // Tasks due within 48 hours (or already late) that are not done, where the user is an
+    // assignee or the project manager. Each user gets one warning per task and due date.
     private function createDueSoonNotifications(User $user): void
     {
+        // Query 1: the tasks that may need a warning, with their project and assignees
         $tasks = Task::with(['project:id,name,manager_id', 'assignees:id,name'])
             ->where(function ($query) use ($user) {
-                // Tasks where the user is an assignee...
                 $query->whereHas('assignees', fn ($q) => $q->whereKey($user->id))
-                    // ...or tasks in a project the user manages
                     ->orWhereHas('project', fn ($q) => $q->where('manager_id', $user->id));
             })
             ->whereHas('boardColumn', fn ($c) => $c->where('is_done', false))
@@ -62,15 +61,26 @@ class NotificationController extends Controller
             ->whereDate('due_date', '<=', now()->addDays(2)->toDateString())
             ->get();
 
-        foreach ($tasks as $task) {
-            $alreadySent = $user->notifications()
-                ->where('type', TaskDueSoon::class)
-                // The JSON value is compared as text, so cast the ID to a string
-                ->where('data->task_id', (string) $task->id)
-                ->where('data->due_date', $task->due_date->toDateString())
-                ->exists();
+        if ($tasks->isEmpty()) {
+            return;
+        }
 
-            if (! $alreadySent) {
+        // Query 2: every due-soon warning this user already has for these tasks.
+        // The result is a list of "task_id|due_date" keys, so no query runs inside the loop.
+        $taskIds = $tasks->pluck('id')->map(fn ($id) => (string) $id)->all();
+
+        $sentKeys = $user->notifications()
+            ->where('type', TaskDueSoon::class)
+            ->whereIn('data->task_id', $taskIds)
+            ->get()
+            ->map(fn ($n) => ($n->data['task_id'] ?? '').'|'.($n->data['due_date'] ?? ''))
+            ->all();
+
+        // No queries here except the inserts for the warnings that are actually new
+        foreach ($tasks as $task) {
+            $key = $task->id.'|'.$task->due_date->toDateString();
+
+            if (! in_array($key, $sentKeys, true)) {
                 $user->notify(new TaskDueSoon($task));
             }
         }
